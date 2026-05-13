@@ -95,6 +95,15 @@ github_download(){
     wget --tries=5 --waitretry=2 --timeout=30 -O "$out_file" "$download_url"
 }
 
+download_verified(){
+    local url="$1"
+    local out_file="$2"
+    local sha256="$3"
+
+    wget --tries=5 --waitretry=2 --timeout=30 -O "$out_file" "$url"
+    echo "${sha256}  ${out_file}" | sha256sum -c -
+}
+
 gitlab_download(){
     local gitlab_url="$1"
     local out_file="$2"
@@ -157,8 +166,11 @@ github_download "xemu-project/xemu" "xemu-emu.AppImage" "|select(.name|contains(
 echo "**** Downloading RPCS3 AppImage ****"
 github_download "rpcs3/rpcs3-binaries-linux" "rpcs3-emu.AppImage" "" "/latest"
 
-echo "**** Downloading CEMU AppImage ****"
-github_download "cemu-project/Cemu" "cemu-emu.AppImage" "" "/latest"
+echo "**** Downloading verified CEMU AppImage ****"
+download_verified \
+    "https://github.com/cemu-project/Cemu/releases/download/v2.6/Cemu-2.6-x86_64.AppImage" \
+    "cemu-emu.AppImage" \
+    "0c20c4aeb800bb13d9bab9474ef45a6f8fcde6402cad9b32ac2a1bbd03186313"
 
 echo "**** Downloading Dolphin AppImage ****"
 github_download "pkgforge-dev/Dolphin-emu-AppImage" "dolphin-emu.AppImage" "|select(.name|contains(\"zsync\")|not)|select(.name|contains(\"x86_64.AppImage\"))"
